@@ -1,9 +1,11 @@
 # Directories
 /.idea
-/.vscode
+/**/.vscode
 /bazel-*
 /fused
 /pkg
+/**/__pycache__
+/**/.pytest_cache
 
 # Single files
 /.gapid-config
