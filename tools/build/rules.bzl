@@ -17,7 +17,7 @@ load("//tools/build/rules:android.bzl",
     _android_native_binary = "android_native_binary",
 )
 load("//tools/build/rules:apic.bzl",
-    _apic_compile = "apic_compile",
+    _apic_encoders = "apic_encoders",
     _apic_template = "apic_template",
 )
 load("//tools/build/rules:cc.bzl",
@@ -65,6 +65,10 @@ load("//tools/build/rules:lingo.bzl",\
 load("//tools/build/rules:mm.bzl",
     _mm_library = "mm_library",
 )
+load("//tools/build/python:python.bzl",
+    _py_lint = "py_lint",
+    _py_test = "py_test",
+)
 load("//tools/build/rules:stringgen.bzl",
     _stringgen = "stringgen",
 )
@@ -74,7 +78,7 @@ load("//tools/build/rules:zip.bzl",
 
 android_native = _android_native
 android_native_binary = _android_native_binary
-apic_compile = _apic_compile
+apic_encoders = _apic_encoders
 apic_template = _apic_template
 cc_copts = _cc_copts
 cc_stripped_binary = _cc_stripped_binary
@@ -97,5 +101,7 @@ go_stripped_binary = _go_stripped_binary
 java_grpc_library = _java_grpc_library
 lingo = _lingo
 mm_library = _mm_library
+py_lint = _py_lint
+py_test = _py_test
 stringgen = _stringgen
 extract = _extract

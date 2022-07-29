@@ -1,9 +1,11 @@
 # Directories
 /.idea
-/.vscode
+/**/.vscode
 /bazel-*
 /fused
 /pkg
+/**/__pycache__
+/**/.pytest_cache
 
 # Single files
 /.gapid-config
@@ -25,3 +27,6 @@ gapis.log
 # Vim
 [._]*.s[a-w][a-z]
 [._]s[a-w][a-z]
+
+# Sublime
+BUILD.sublime-workspace

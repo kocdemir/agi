@@ -2441,6 +2441,42 @@ func (sb *stateBuilder) createRenderPass2(rp RenderPassObjectʳ) {
 	subpassDescriptions := []VkSubpassDescription2{}
 	for _, k := range rp.SubpassDescriptions().Keys() {
 		sd := rp.SubpassDescriptions().Get(k)
+		sdPnext := NewVoidᶜᵖ(memory.Nullptr)
+
+		if !sd.DepthStencilResolve().IsNil() {
+			depthStencilResolve := sd.DepthStencilResolve().Get()
+			arPnext := NewVoidᶜᵖ(memory.Nullptr)
+			if !depthStencilResolve.DepthStencilResolveAttachment().StencilLayout().IsNil() {
+				slPnext := NewVoidᶜᵖ(memory.Nullptr)
+				arPnext = NewVoidᶜᵖ(sb.MustAllocReadData(
+					NewVkAttachmentReferenceStencilLayout(
+						VkStructureType_VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_STENCIL_LAYOUT,
+						NewVoidᵖ(slPnext),
+						depthStencilResolve.DepthStencilResolveAttachment().StencilLayout().StencilLayout(),
+					),
+				).Ptr())
+			}
+
+			dsrAttachmentRef := NewVkAttachmentReference2ᶜᵖ(sb.MustAllocReadData(
+				NewVkAttachmentReference2(
+					VkStructureType_VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2,
+					arPnext,
+					depthStencilResolve.DepthStencilResolveAttachment().Attachment(),
+					depthStencilResolve.DepthStencilResolveAttachment().Layout(),
+					depthStencilResolve.DepthStencilResolveAttachment().AspectMask(),
+				),
+			).Ptr())
+
+			sdPnext = NewVoidᶜᵖ(sb.MustAllocReadData(
+				NewVkSubpassDescriptionDepthStencilResolve(
+					VkStructureType_VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_DEPTH_STENCIL_RESOLVE,
+					NewVoidᶜᵖ(memory.Nullptr),
+					depthStencilResolve.DepthResolveMode(),
+					depthStencilResolve.StencilResolveMode(),
+					dsrAttachmentRef,
+				),
+			).Ptr())
+		}
 
 		depthStencil := NewVkAttachmentReference2ᶜᵖ(memory.Nullptr)
 		if !sd.DepthStencilAttachment().IsNil() {
@@ -2529,7 +2565,7 @@ func (sb *stateBuilder) createRenderPass2(rp RenderPassObjectʳ) {
 
 		subpassDescriptions = append(subpassDescriptions, NewVkSubpassDescription2(
 			VkStructureType_VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_2,
-			NewVoidᶜᵖ(memory.Nullptr),
+			sdPnext,
 			sd.Flags(),                             // flags
 			sd.PipelineBindPoint(),                 // pipelineBindPoint
 			sd.ViewMask(),                          // viewMask
@@ -3494,6 +3530,36 @@ func (sb *stateBuilder) createFramebuffer(fb FramebufferObjectʳ) {
 		temporaryRenderPass = GetState(sb.newState).RenderPasses().Get(fb.RenderPass().VulkanHandle())
 	}
 
+	pNext := NewVoidᶜᵖ(memory.Nullptr)
+	if fb.ImagelessFramebufferAttachmentInfo().Len() > 0 {
+		attachmentImageInfos := []VkFramebufferAttachmentImageInfo{}
+		for _, i := range fb.ImagelessFramebufferAttachmentInfo().Keys() {
+			info := fb.ImagelessFramebufferAttachmentInfo().Get(i)
+			attachmentImageInfos = append(attachmentImageInfos,
+				NewVkFramebufferAttachmentImageInfo(
+					VkStructureType_VK_STRUCTURE_TYPE_FRAMEBUFFER_ATTACHMENT_IMAGE_INFO, // sType
+					0,                                // pNext
+					info.Flags(),                     // flags
+					info.Usage(),                     // usage
+					info.Width(),                     // width
+					info.Height(),                    // height
+					info.LayerCount(),                // layerCount
+					uint32(info.ViewFormats().Len()), // viewFormatCount
+					NewVkFormatᶜᵖ(sb.MustUnpackReadMap(info.ViewFormats().All()).Ptr()), // pViewFormats
+				),
+			)
+		}
+
+		pNext = NewVoidᶜᵖ(sb.MustAllocReadData(
+			NewVkFramebufferAttachmentsCreateInfo(
+				VkStructureType_VK_STRUCTURE_TYPE_FRAMEBUFFER_ATTACHMENTS_CREATE_INFO, // sType
+				pNext, // pNext
+				uint32(fb.ImagelessFramebufferAttachmentInfo().Len()),                                   // attachmentImageInfoCount
+				NewVkFramebufferAttachmentImageInfoᶜᵖ(sb.MustAllocReadData(attachmentImageInfos).Ptr()), // pAttachmentImageInfos
+			),
+		).Ptr())
+	}
+
 	imageViews := []VkImageView{}
 	for _, v := range fb.ImageAttachments().Keys() {
 		imageViews = append(imageViews, fb.ImageAttachments().Get(v).VulkanHandle())
@@ -3503,8 +3569,8 @@ func (sb *stateBuilder) createFramebuffer(fb FramebufferObjectʳ) {
 		fb.Device(),
 		sb.MustAllocReadData(NewVkFramebufferCreateInfo(
 			VkStructureType_VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO, // sType
-			0,                              // pNext
-			0,                              // flags
+			pNext,                          // pNext
+			fb.Flags(),                     // flags
 			fb.RenderPass().VulkanHandle(), // renderPass
 			uint32(len(imageViews)),        // attachmentCount
 			NewVkImageViewᶜᵖ(sb.MustAllocReadData(imageViews).Ptr()), // pAttachments
