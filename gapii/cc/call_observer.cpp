@@ -15,15 +15,14 @@
  */
 
 #include "call_observer.h"
-#include "spy_base.h"
+
+#include <tuple>
 
 #include "core/cc/thread.h"
 #include "core/cc/timer.h"
-
 #include "gapis/api/gfxtrace.pb.h"
 #include "gapis/memory/memory_pb/memory.pb.h"
-
-#include <tuple>
+#include "spy_base.h"
 #if TARGET_OS == GAPID_OS_WINDOWS
 #include <windows.h>
 #else
@@ -130,6 +129,10 @@ void CallObserver::observeTimestamp() {
   api::TimeStamp timestamp;
   timestamp.set_nanoseconds(core::GetNanoseconds());
   encode_message(&timestamp);
+}
+
+bool CallObserver::ignoreFrameBoundaryDelimiters() {
+  return mSpy->ignoreFrameBoundaryDelimiters();
 }
 
 void CallObserver::enter(const ::google::protobuf::Message* cmd) {

@@ -1,6 +1,6 @@
 # Building Android GPU Inspector
 
-AGI uses the [Bazel build system](https://bazel.build/). The recommended version of Bazel is **4.2.0**.
+AGI uses the [Bazel build system](https://bazel.build/). The recommended version of Bazel is **5.2.0**.
 
 Bazel is able to fetch most of the dependencies required to build AGI, but currently the Android SDK and NDK both need to be downloaded and installed by hand.
 
@@ -12,21 +12,6 @@ After setting up the build environment, AGI can be built in a terminal with:
 cd <path-to-agi-source>
 bazel build pkg
 ```
-
-> :warning: We currently use NDK r21d to have access to the unified Khronos
-> validation layer. Bazel 2.0.0 has no official support for r21d, so **the
-> following build warning is expected and can be ignored:**
->
-> ```
-> WARNING: The major revision of the Android NDK referenced by
-> android_ndk_repository rule 'androidndk' is 21. The major
-> revisions supported by Bazel are [10, 11, 12, 13, 14, 15, 16,
-> 17, 18, 19, 20]. Bazel will attempt to treat the NDK as if it
-> was r20. This may cause compilation and linkage problems.
-> Please download a supported NDK version.
-> ```
->
-> This issue is tracked by https://github.com/google/agi/issues/305
 
 The build output will be at `<path-to-agi-source>/bazel-bin/pkg`.
 
@@ -42,7 +27,7 @@ The build output will be at `<path-to-agi-source>/bazel-bin/pkg`.
 
 Start a console, with administrator privilege, and type:
 
-`choco install bazel --version 2.0.0`
+`choco install bazel --version 5.2.0`
 
 In the same console, install Python and MSYS2 as well:
 
@@ -160,7 +145,7 @@ into the /Applications/ folder, and set the `ANDROID_NDK_HOME` environment point
 export ANDROID_NDK_HOME=/Applications/AndroidNDK6528147.app/Contents/NDK
 ```
 
-### Install the XCode command line tools
+### Install the XCode 12 command line tools
 
 After installing, ensure the XCode license is signed with:
 
@@ -168,6 +153,16 @@ After installing, ensure the XCode license is signed with:
 sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 sudo xcodebuild -license
 ```
+
+### Install Clang-12
+
+We use Clang-12 to build AGI on Linux which should be part of XCode 12. If there is no clang on the system it and can be downloaded from https://apt.llvm.org/. After downloading and installing Clang-12, add it to environment.
+
+```
+export CC=clang-12
+```
+
+Alternatively, GCC can also be used for compiling AGI but we cannot guarantee that every GCC version will be able to compile AGI.
 
 ### Increase the maximum number of OS file handles
 
@@ -201,6 +196,17 @@ The following environment variables will need to be set prior to building:
 Follow the [Ubuntu Bazel Install](https://docs.bazel.build/versions/master/install-ubuntu.html) or the[Fedora/CentOS Bazel Install](https://docs.bazel.build/versions/master/install-redhat.html) directions to install bazel.
 
 Alternatively, bazel can be downloaded from its [GitHub Releases Page](https://github.com/bazelbuild/bazel/releases).
+
+### Install Clang-12
+
+We use Clang-12 to build AGI on Linux which can be downloaded from https://apt.llvm.org/ After downloading and installing Clang-12,
+add it to environment.
+
+```
+export CC=clang-12
+```
+
+Alternatively, GCC can also be used for compiling AGI but we cannot guarantee that every GCC version will be able to compile AGI.
 
 ### Install Java Development Kit 11
 

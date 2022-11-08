@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <string>
+
 #include "replay2/core_utils/non_copyable.h"
 #include "replay2/handle_remapper/handle_remapper.h"
 #include "replay2/memory_remapper/memory_remapper.h"
@@ -21,12 +23,12 @@ namespace replay2 {
 
 class ReplayContext : public NonCopyable {
    public:
-    ReplayContext(const std::string& replayIdentifier) : replayIdentifier_(replayIdentifier_) {}
+    ReplayContext(const std::string& replayIdentifier) : replayIdentifier_(replayIdentifier) {}
 
     const std::string& getReplayIdentifier() const { return replayIdentifier_; }
 
-    HandleRemapper& HandleRemapper() const { return handleRemapper_; }
-    MemoryRemapper& MemoryRemapper() const { return memoryRemapper_; }
+    HandleRemapper& getHandleRemapper() { return handleRemapper_; }
+    MemoryRemapper& getMemoryRemapper() { return memoryRemapper_; }
 
    private:
     std::string replayIdentifier_;

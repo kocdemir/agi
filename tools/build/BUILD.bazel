@@ -54,6 +54,14 @@ config_setting(
 )
 
 config_setting(
+    name = "darwin_arm64",
+    values = {
+        "cpu": "darwin_arm64",
+    },
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
     name = "windows",
     values = {
         "cpu": "x64_windows",
@@ -96,6 +104,16 @@ config_setting(
 )
 
 config_setting(
+    name = "fuchsia-x86_64",
+    define_values = {
+        "FUCHSIA_BUILD": "1",
+    },
+    values = {
+        "cpu": "x86_64",
+    },
+)
+
+config_setting(
     name = "debug",
     values = {
         "compilation_mode": "dbg",
@@ -133,6 +151,7 @@ genrule(
         ":linux": ["@bazel_tools//tools/jdk:jni_md_header-linux"],
         ":windows": ["@bazel_tools//tools/jdk:jni_md_header-windows"],
         ":darwin": ["@bazel_tools//tools/jdk:jni_md_header-darwin"],
+        ":darwin_arm64": ["@bazel_tools//tools/jdk:jni_md_header-darwin"],
     }),
     outs = ["jni_md.h"],
     cmd = "cp -f $< $@",

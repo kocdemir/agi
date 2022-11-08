@@ -63,7 +63,9 @@ public class CounterPanel extends TrackPanel<CounterPanel> implements Selectable
   @Override
   public String getTitle() {
     CounterInfo info = track.getCounter();
-    if (info.type == CounterInfo.Type.Gpu && "gpufreq".equals(info.name)) {
+    if (info.name.startsWith("power.rails")) {
+      return info.name.replace("power.rails.","").replace(".", "-");
+    } else if (info.type == CounterInfo.Type.Gpu && "gpufreq".equals(info.name)) {
       return "GPU " + info.ref + " Frequency";
     }
     return track.getCounter().name;
@@ -95,7 +97,9 @@ public class CounterPanel extends TrackPanel<CounterPanel> implements Selectable
       }
 
       CounterInfo counter = track.getCounter();
-      double min = counter.range.min, range = counter.range.range();
+
+      double min = counter.range.min;
+      double range = counter.range.range();
 
       Selection<?> selected = state.getSelection(Selection.Kind.Counter);
       List<Integer> visibleSelected = Lists.newArrayList();
@@ -315,7 +319,6 @@ public class CounterPanel extends TrackPanel<CounterPanel> implements Selectable
       this.minLabel = isTotal ? "Trace Min:" : "Range Min:";
       this.maxLabel = isTotal ? "Trace Max:" : "Range Max:";
       this.avgLabel = isTotal ? "Trace Avg:" : "Range Avg:";
-
 
       Size valueSize = tm.measure(Fonts.Style.Normal, label);
       Size minSize = tm.measure(Fonts.Style.Normal, min);

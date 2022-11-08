@@ -14,7 +14,8 @@
 
 """ This module is responsible for parsing Vulkan structs and aliases of them"""
 
-from typing import OrderedDict
+from typing import Dict
+from typing import Optional
 
 import xml.etree.ElementTree as ET
 
@@ -22,11 +23,11 @@ from vulkan_generator.vulkan_parser.internal import parser_utils
 from vulkan_generator.vulkan_parser.internal import internal_types
 
 
-def parse_struct_members(struct_element: ET.Element) -> OrderedDict[str, internal_types.VulkanStructMember]:
+def parse_struct_members(struct_element: ET.Element) -> Dict[str, internal_types.VulkanStructMember]:
     """Parses a Vulkan Struct member
 
     This is a bit of an irregular code because the XML itself has quite irregularities that
-    makes is hard to parse type and variable easily.
+    makes is hard to parse type and name easily.
 
     For example a const pointer member is defined as:
      <member optional="true">const <type>void</type>*     <name>pNext</name></member>
@@ -38,14 +39,14 @@ def parse_struct_members(struct_element: ET.Element) -> OrderedDict[str, interna
     </member>
     """
 
-    #  This is a bit of an irregular code because the XML itself has quite irregularities that
-    # makes is hard to parse type and variable easily.
+    members: Dict[str, internal_types.VulkanStructMember] = {}
+    struct_name = struct_element.attrib["name"]
+
+    # This is a bit of an irregular code because the XML itself has quite irregularities that
+    # makes is hard to parse type and name easily.
     #
     # This is not the code we wanted but it's the code that we needed and it's contained in a
     # small place so that XML irregularities does not leak into the rest of the code.
-
-    members: OrderedDict[str, internal_types.VulkanStructMember] = OrderedDict()
-
     for member_element in struct_element:
         if member_element.tag == "comment":
             # Melih TODO: We may want to support comments in the future
@@ -55,8 +56,8 @@ def parse_struct_members(struct_element: ET.Element) -> OrderedDict[str, interna
             raise SyntaxError(
                 f"No member tag found in : {ET.tostring(member_element, 'utf-8')}")
 
-        variable_type = parser_utils.get_text_from_tag_in_children(member_element, "type")
-        variable_name = parser_utils.get_text_from_tag_in_children(member_element, "name")
+        member_type = parser_utils.get_text_from_tag_in_children(member_element, "type")
+        member_name = parser_utils.get_text_from_tag_in_children(member_element, "name")
 
         # Type attributes(const, struct) and pointer attributes(*, const*, *const,*const*)
         # are usually in the text field of the member tag.
@@ -80,7 +81,7 @@ def parse_struct_members(struct_element: ET.Element) -> OrderedDict[str, interna
 
             # It might be empty string after cleaning
             if type_attributes:
-                variable_type = f"{type_attributes} {variable_type}"
+                member_type = f"{type_attributes} {member_type}"
 
         pointers = parser_utils.try_get_tail_from_tag_in_children(member_element, "type")
         if pointers:
@@ -90,24 +91,28 @@ def parse_struct_members(struct_element: ET.Element) -> OrderedDict[str, interna
             if pointers:
                 # Add space between "*" and "const"
                 pointers = pointers.replace("const", " const")
-                variable_type = f"{variable_type}{pointers}"
+                member_type = f"{member_type}{pointers}"
 
-        if not variable_type:
+        if not member_type:
             raise SyntaxError(
-                f"No variable_type found in : {ET.tostring(member_element, 'utf-8')}")
+                f"No member type found in : {ET.tostring(member_element, 'utf-8')}")
 
-        if not variable_name:
+        if not member_name:
             raise SyntaxError(
-                f"No variable name found in : {ET.tostring(member_element, 'utf-8')}")
-
-        # Variable size is optional
-        variable_size = parser_utils.try_get_text_from_tag_in_children(member_element, "enum")
+                f"No member name found in : {ET.tostring(member_element, 'utf-8')}")
 
         # Currently if this attribute exists, it's always true
-        no_auto_validity = parser_utils.try_get_attribute(member_element, "noautovalidity") == "true"
+        no_auto_validity = member_element.get("noautovalidity") == "true"
 
         # This is useful for the sType where the correct value is already known
-        expected_value = parser_utils.try_get_attribute(member_element, "values")
+        expected_value = member_element.get("values")
+
+        size = parser_utils.parse_member_sizes(member_element)
+
+        c_bitfield_size: Optional[int] = None
+        bitfield_str = parser_utils.try_get_tail_from_tag_in_children(member_element, "name")
+        if bitfield_str and bitfield_str.startswith(":"):
+            c_bitfield_size = int(bitfield_str[1:])
 
         # Is this field optional or has to be set
         # When this field is "false, true"  it's always for the length of the array
@@ -119,24 +124,17 @@ def parse_struct_members(struct_element: ET.Element) -> OrderedDict[str, interna
         # Instead of the count member, the actual array member is "false, true"
         # I think it's actually a bug in XML.
         # Melih TODO: Check if VkDescriptorBindingFlags is buggy in the XML
-        optional = parser_utils.try_get_attribute(member_element, "optional") == "true"
+        optional = member_element.get("optional") == "true"
 
-        # This is useful when the member is an pointer to an array
-        # with a length given by another member
-        array_size_reference = parser_utils.try_get_attribute(member_element, "len")
-        if array_size_reference:
-            # pointer to char array has this property, which is redundant
-            array_size_reference = array_size_reference.replace("null-terminated", "")
-            array_size_reference = parser_utils.clean_type_string(array_size_reference)
-
-        members[variable_name] = internal_types.VulkanStructMember(
-            variable_type=variable_type,
-            variable_name=variable_name,
-            variable_size=variable_size,
+        members[member_name] = internal_types.VulkanStructMember(
+            member_type=member_type,
+            member_name=member_name,
+            parent=struct_name,
             no_auto_validity=no_auto_validity,
             expected_value=expected_value,
-            array_size_reference=array_size_reference,
-            optional=optional
+            size=size,
+            c_bitfield_size=c_bitfield_size,
+            optional=optional,
         )
 
     return members
@@ -163,11 +161,15 @@ def parse(struct_elem: ET.Element) -> internal_types.VulkanType:
 
     struct_name = struct_elem.attrib["name"]
 
-    alias_name = parser_utils.try_get_attribute(struct_elem, "alias")
+    alias_name = struct_elem.get("alias")
     if alias_name:
         return internal_types.VulkanStructAlias(typename=struct_name, aliased_typename=alias_name)
+
+    base_structs = parser_utils.try_get_attribute_as_list(struct_elem, "structextends")
 
     members = parse_struct_members(struct_elem)
     return internal_types.VulkanStruct(
         typename=struct_name,
-        members=members)
+        base_structs=base_structs,
+        members=members,
+    )

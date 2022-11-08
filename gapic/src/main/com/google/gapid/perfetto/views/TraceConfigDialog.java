@@ -332,7 +332,8 @@ public class TraceConfigDialog extends DialogBase {
               .getAndroidPowerConfigBuilder()
                   .setBatteryPollMs(p.getBatteryOrBuilder().getRate())
                   .addAllBatteryCounters(Arrays.asList(BAT_COUNTERS))
-                  .setCollectPowerRails(p.getBatteryOrBuilder().getCollectPowerRail());
+                  .setCollectPowerRails(p.getBatteryOrBuilder().getCollectPowerRail())
+                  .setCollectEnergyEstimationBreakdown(p.getBatteryOrBuilder().getCollectEnergyBreakdown());
     }
 
     if (p.getVulkanOrBuilder().getEnabled()) {
@@ -610,6 +611,7 @@ public class TraceConfigDialog extends DialogBase {
     private final Label[] batLabels;
     private final Spinner batRate;
     private Button batPowerRail;
+    private Button batEnergyBreakDown;
 
     private final Button vulkan;
     private final Button vulkanCPUTiming;
@@ -767,15 +769,19 @@ public class TraceConfigDialog extends DialogBase {
       addSeparator();
 
       bat = createCheckbox(this, "Battery", sBatt.getEnabled(), e -> updateBat());
-      batLabels = new Label[2];
       Composite batGroup = withLayoutData(
-          createComposite(this, withMargin(new GridLayout(3, false), 5, 0)),
+          createComposite(this, withMargin(new GridLayout(1, false), 5, 0)),
           withIndents(new GridData(), GROUP_INDENT, 0));
-      batLabels[0] = createLabel(batGroup, "Poll Rate:");
-      batRate = createSpinner(batGroup, sBatt.getRate(), 250, 60000);
-      batLabels[1] = createLabel(batGroup, "ms");
+      batLabels = new Label[2];
+      Composite batLabelGroup = withLayoutData(
+          createComposite(batGroup, withMargin(new GridLayout(3, false), 5, 0)),
+          withIndents(new GridData(), GROUP_INDENT, 0));
+      batLabels[0] = createLabel(batLabelGroup, "Poll Rate:");
+      batRate = createSpinner(batLabelGroup, sBatt.getRate(), 250, 60000);
+      batLabels[1] = createLabel(batLabelGroup, "ms");
       if (caps.getHasPowerRail()) {
         batPowerRail = createCheckbox(batGroup, "Collect Power Rails", sBatt.getCollectPowerRail());
+        batEnergyBreakDown = createCheckbox(batGroup, "Collect Energy Breakdown", sBatt.getCollectEnergyBreakdown());
       }
 
       Device.VulkanProfilingLayers vkLayers = caps.getVulkanProfileLayers();
@@ -909,6 +915,10 @@ public class TraceConfigDialog extends DialogBase {
         sBatt.setCollectPowerRail(batPowerRail.getSelection());
       }
 
+      if (batEnergyBreakDown != null) {
+        sBatt.setCollectEnergyBreakdown(batEnergyBreakDown.getSelection());
+      }
+
       if (vulkan != null) {
         sVk.setEnabled(vulkan.getSelection());
       }
@@ -1018,6 +1028,9 @@ public class TraceConfigDialog extends DialogBase {
       }
       if (batPowerRail != null) {
         batPowerRail.setEnabled(enabled);
+      }
+      if (batEnergyBreakDown != null) {
+        batEnergyBreakDown.setEnabled(enabled);
       }
     }
   }

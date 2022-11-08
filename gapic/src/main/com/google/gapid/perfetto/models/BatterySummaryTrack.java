@@ -26,7 +26,6 @@ import com.google.gapid.models.Perfetto;
 import com.google.gapid.perfetto.models.QueryEngine.Row;
 import com.google.gapid.perfetto.views.BatterySelectionView;
 import com.google.gapid.perfetto.views.BatterySummaryPanel;
-import com.google.gapid.perfetto.views.CounterPanel;
 import com.google.gapid.perfetto.views.State;
 import com.google.gapid.perfetto.views.TitlePanel;
 
@@ -60,13 +59,8 @@ public class BatterySummaryTrack
     CounterInfo battCap = onlyOne(counters.get("batt.capacity_pct"));
     CounterInfo battCharge = onlyOne(counters.get("batt.charge_uah"));
     CounterInfo battCurrent = onlyOne(counters.get("batt.current_ua"));
-    List<CounterInfo> powerRails = counters.entries().stream()
-        .filter(entry -> entry.getKey().startsWith("power.rails"))
-        .map(Map.Entry::getValue)
-        .map(value -> trimPowerRailTrackName(value))
-        .collect(Collectors.toList());
-    if (((battCap == null) || (battCharge  == null) || (battCurrent  == null))
-        && powerRails.size() == 0) {
+
+    if ((battCap == null) || (battCharge  == null) || (battCurrent  == null)){
       return data;
     }
     // Battery Group
@@ -79,31 +73,11 @@ public class BatterySummaryTrack
       data.tracks.addTrack(batteryGroup, track.getId(), "Battery Usage",
           single(state -> new BatterySummaryPanel(state, track), true, false));
     }
-    // Power Rails tracks.
-    if (powerRails.size() > 0) {
-      String powerRailsGroup = "power_rails_group";
-      data.tracks.addLabelGroup(batteryGroup, powerRailsGroup, "Power Rails",
-          group(state -> new TitlePanel("Power Rails"), false));
-      for (CounterInfo powerRail : powerRails) {
-        CounterTrack powerRailTrack = new CounterTrack(data.qe, powerRail);
-        data.tracks.addTrack(powerRailsGroup, powerRailTrack.getId(), powerRail.name,
-            single(state -> new CounterPanel(state, powerRailTrack, POWER_RAIL_COUNTER_TRACK_HEIGHT),
-                true, true));
-      }
-    }
     return data;
   }
 
   private static CounterInfo onlyOne(ImmutableList<CounterInfo> counters) {
     return (counters.size() != 1) ? null : counters.get(0);
-  }
-
-  private static CounterInfo trimPowerRailTrackName(CounterInfo powerRailTrack) {
-    String powerRailTrackName = powerRailTrack.name.replace("power.rails.","").replace(".", "-");
-    CounterInfo trimmedPowerRailTrack = new CounterInfo(powerRailTrack.id, powerRailTrack.type, powerRailTrack.ref,
-    powerRailTrackName, powerRailTrack.description, powerRailTrack.unit,
-      powerRailTrack.interpolation, powerRailTrack.count, powerRailTrack.min, powerRailTrack.max, powerRailTrack.avg);
-    return trimmedPowerRailTrack;
   }
 
   @Override

@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-#include "query.h"
-
 #include "core/cc/target.h"
+#include "query.h"
 
 #if (defined(__x86_64) || defined(__i386))
 #include <cpuid.h>
@@ -48,9 +47,24 @@ bool query::queryCpu(CpuInfo* info, std::string* error) {
   return true;
 }
 
+#elif (defined(__arm64))
+#include <fstream>
+
+// Melih TODO: Implement this properly
+bool query::queryCpu(CpuInfo* info, std::string* error) {
+  // The only Arm64 device is not Apple M1
+  // Therefore add this temporary solution
+
+  info->name = "darwin_arm64";
+  info->architecture = device::ARM64;
+  info->vendor = "ARM";
+  return true;
+}
+
 #elif ((defined(__arm__) || defined(__aarch64__)) && \
        TARGET_OS == GAPID_OS_ANDROID)
 #include <sys/system_properties.h>
+
 #include <fstream>
 
 bool query::queryCpu(CpuInfo* info, std::string* error) {

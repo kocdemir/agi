@@ -38,8 +38,8 @@ def gapid_dependencies(android = True, mingw = True, locals = {}):
         locals = locals,
         organization = "bazelbuild",
         project = "rules_go",
-        commit = "ddbaa8e41c45405ca753cefaf50b2bc040dfdee4",  # 0.28.0
-        sha256 = "64378b657395784e57e6fe2cf755af15bcd79b2bbada51b4bc30bbe9932cabcc",
+        commit = "efc3212592320c1ab7f986c9a7882770ee06ad3b",  # 0.34.0
+        sha256 = "eb10f4436ddc732127afedf78636637d0cc9b256aba9f643a452914289266e6b",
     )
 
     maybe_repository(
@@ -48,8 +48,8 @@ def gapid_dependencies(android = True, mingw = True, locals = {}):
         locals = locals,
         organization = "bazelbuild",
         project = "rules_python",
-        commit = "ae7a2677b3003b13d45bc9bfc25f1425bed5b407",  # 0.8.1
-        sha256 = "f1c3069679395ac1c1104f28a166f06167d30d41bdb1797d154d80b511780d2e",
+        commit = "a2b7f4288fc7ad4ed387aa20cb2d09bf497a1b10",  # 0.11.0
+        sha256 = "226f62de4dfd78fc6a2ee82c4747d4cce4d39dbf67108887ca5c7aa07a30dbd2",
         patches = [
             # Fix the problem with trying to use /usr/bin/python rather than a versioned python.
             "@gapid//tools/build/third_party:rules_python.patch",
@@ -71,9 +71,9 @@ def gapid_dependencies(android = True, mingw = True, locals = {}):
         locals = locals,
         organization = "madler",
         project = "zlib",
-        commit = "cacf7f1d4e3d44d871b605da3b647f07d718623f",
+        commit = "21767c654d31d2dccdde4330529775c6c5fd5389",  # 1.2.12
         build_file = "@gapid//tools/build/third_party:zlib.BUILD",
-        sha256 = "1cce3828ec2ba80ff8a4cac0ab5aa03756026517154c4b450e617ede751d41bd",
+        sha256 = "b860a877983100f28c7bcf2f3bb7abbca8833e7ce3af79edfda21358441435d3",
     )
 
     maybe_repository(
@@ -82,8 +82,8 @@ def gapid_dependencies(android = True, mingw = True, locals = {}):
         locals = locals,
         organization = "google",
         project = "protobuf",
-        commit = "909a0f36a10075c4b4bc70fdee2c7e32dd612a72",  # 3.17.3
-        sha256 = "e1853700543f5dfccf05648bb54f16e0add0154a03024334e8b0abd96655f652",
+        commit = "ab840345966d0fa8e7100d771c92a73bfbadd25c",  # 3.21.5
+        sha256 = "0025119f5c97871436b4b271fee48bd6bfdc99956023e0d4fd653dd8eaaeff52",
         repo_mapping = {"@zlib": "@net_zlib"},
     )
 
@@ -93,9 +93,13 @@ def gapid_dependencies(android = True, mingw = True, locals = {}):
         locals = locals,
         organization = "grpc",
         project = "grpc",
-        commit = "2d6b8f61cfdd1c4d2d7c1aae65a4fbf00e3e0981",  # 1.39.1
-        sha256 = "64d8b30a3390e1b1b85158643e3206f5bd6ae8d8f74af729f45a5cb5f6bafbbc",
+        commit = "d2054ec6c6e8abcecf0e24b0b4ee75035d80c3cc",  # 1.48.0
+        sha256 = "ea0da456d849eafa5287dc1e9d53c065896dca2cd896a984101ebe0708979dca",
         repo_mapping = {"@zlib": "@net_zlib"},
+        patches = [
+            # Remove calling the go dependencies, since we do that ourselves.
+            "@gapid//tools/build/third_party:com_github_grpc_grpc.patch",
+        ],
     )
 
     ###########################################
@@ -107,8 +111,8 @@ def gapid_dependencies(android = True, mingw = True, locals = {}):
         locals = locals,
         organization = "google",
         project = "googletest",
-        commit = "703bd9caab50b139428cea1aaff9974ebee5742e",  # 1.10.0
-        sha256 = "2db427be8b258ad401177c411c2a7c2f6bc78548a04f1a23576cc62616d9cd38",
+        commit = "58d77fa8070e8cec2dc1ed015d66b454c8d78850",  # 1.12.1
+        sha256 = "ab78fa3f912d44d38b785ec011a25f26512aaedc5291f51f3807c592b506d33a",
     )
 
     maybe_repository(
@@ -117,9 +121,9 @@ def gapid_dependencies(android = True, mingw = True, locals = {}):
         locals = locals,
         organization = "ARM-software",
         project = "astc-encoder",
-        commit = "2164984243a3fbd2b2429e7562f7fe31914f446b",  # 2.1 (November 2020)
+        commit = "f6236cf158a877b3279a2090dbea5e9a4c105d64",  # 4.0.0
         build_file = "@gapid//tools/build/third_party:astc-encoder.BUILD",
-        sha256 = "50d0e8c84acf7e16d0ce2c4f3bf658c5a69d0e07d21b7fd629b73cbb143b477a",
+        sha256 = "28305281b0fe89b0e57c61f684ed7f6145a5079a3f4f03a4fd3fe0c27df0bb45",
     )
 
     maybe_repository(
@@ -137,7 +141,7 @@ def gapid_dependencies(android = True, mingw = True, locals = {}):
         breakpad,
         name = "breakpad",
         locals = locals,
-        commit = "a61afe7a3e865f1da7ff7185184fe23977c2adca",
+        commit = "335e61656fa6034fabc3431a91e5800ba6fc3dc9",
         build_file = "@gapid//tools/build/third_party/breakpad:breakpad.BUILD",
     )
 
@@ -147,9 +151,9 @@ def gapid_dependencies(android = True, mingw = True, locals = {}):
         locals = locals,
         organization = "google",
         project = "cityhash",
-        commit = "8af9b8c2b889d80c22d6bc26ba0df1afb79a30db",
+        commit = "f5dc54147fcce12cefd16548c8e760d68ac04226",
         build_file = "@gapid//tools/build/third_party:cityhash.BUILD",
-        sha256 = "3524f5ed43143974a29fddeeece29c8b6348f05db08dd180452da01a2837ddce",
+        sha256 = "20ab6da9929826c7c81ea3b7348190538a23f823a8b749c2da9715ecb7a6b545",
     )
 
     # Override the gRPC abseil dependency, so we can patch it.
@@ -159,11 +163,13 @@ def gapid_dependencies(android = True, mingw = True, locals = {}):
         locals = locals,
         organization = "abseil",
         project = "abseil-cpp",
-        commit = "278e0a071885a22dcd2fd1b5576cc44757299343",  # LTS 20210324, Patch 2
-        sha256 = "ff5ea6f91f9bcd0f368346ef707d0a80a372b71de5b6ae69ac11d0ca41688b8f",
+        commit = "273292d1cfc0a94a65082ee350509af1d113344d",  # LTS 20220623, Patch 0
+        sha256 = "6764f226bd6e2d8ab9fe2f3cab5f45fb1a4a15c04b58b87ba7fa87456054f98b",
         patches = [
             # Workaround for https://github.com/abseil/abseil-cpp/issues/326.
             "@gapid//tools/build/third_party:abseil_macos_fix.patch",
+            # Pick up bcrypt library on Windows.
+            "@gapid//tools/build/third_party:abseil_windows_fix.patch",
         ],
     )
 
@@ -173,8 +179,8 @@ def gapid_dependencies(android = True, mingw = True, locals = {}):
         locals = locals,
         organization = "KhronosGroup",
         project = "glslang",
-        commit = "ae2a562936cc8504c9ef2757cceaff163147834f",  # 11.5.0
-        sha256 = "a89149cd3ed0938fc53f39778b12ecf7326e52ca0ca30179f747db042893fb98",
+        commit = "73c9630da979017b2f7e19c6549e2bdb93d9b238",  # 11.11.0
+        sha256 = "9304cb73d86fc8e3f1cbcdbd157cd2750baad10cb9e3a798986bca3c3a1be1f0",
     )
 
     maybe_repository(
@@ -183,8 +189,8 @@ def gapid_dependencies(android = True, mingw = True, locals = {}):
         locals = locals,
         organization = "nothings",
         project = "stb",
-        commit = "3a1174060a7dd4eb652d4e6854bc4cd98c159200",
-        sha256 = "9313f6871195b97771ce7da1feae0b3d92c7936456f13099edb54a78096ca93c",
+        commit = "af1a5bc352164740c1cc1354942b1c6b72eacb8a",
+        sha256 = "e3d0edbecd356506d3d69b87419de2f9d180a98099134c6343177885f6c2cbef",
         build_file = "@gapid//tools/build/third_party:stb.BUILD",
     )
 
@@ -193,27 +199,32 @@ def gapid_dependencies(android = True, mingw = True, locals = {}):
         name = "lss",
         locals = locals,
         remote = "https://chromium.googlesource.com/linux-syscall-support",
-        commit = "e1e7b0ad8ee99a875b272c8e33e308472e897660",
+        commit = "c0c9689369b4c5e46b440993807ce4b0a7c9af8a",
         build_file = "@gapid//tools/build/third_party:lss.BUILD",
-        shallow_since = "1618241076 +0000",
+        shallow_since = "1660655052 +0000",
     )
 
     maybe_repository(
-        git_repository,
+        github_repository,
         name = "perfetto",
         locals = locals,
-        remote = "https://android.googlesource.com/platform/external/perfetto",
-        commit = "d1a7b031bbded67e0d67957974e85a83e0b815c0",
-        shallow_since = "1619185617 +0100",
+        organization = "google",
+        project = "perfetto",
+        commit = "0ff403688efce9d5de43d69cae3c835e993e4730",  # 29+
+        sha256 = "e609a91a6d64caf9a4e4b64f1826d160eba8fd84f7e5e94025ba287374e78e30",
+        patches = [
+            # Fix a Windows MinGW build issue.
+            "@gapid//tools/build/third_party:perfetto.patch",
+        ]
     )
 
     maybe_repository(
         http_archive,
         name = "sqlite",
         locals = locals,
-        url = "https://storage.googleapis.com/perfetto/sqlite-amalgamation-3250300.zip",
-        sha256 = "2ad5379f3b665b60599492cc8a13ac480ea6d819f91b1ef32ed0e1ad152fafef",
-        strip_prefix = "sqlite-amalgamation-3250300",
+        url = "https://storage.googleapis.com/perfetto/sqlite-amalgamation-3350400.zip",
+        sha256 = "f3bf0df69f5de0675196f4644e05d07dbc698d674dc563a12eff17d5b215cdf5",
+        strip_prefix = "sqlite-amalgamation-3350400",
         build_file = "@perfetto//bazel:sqlite.BUILD",
     )
 
@@ -221,9 +232,9 @@ def gapid_dependencies(android = True, mingw = True, locals = {}):
         http_archive,
         name = "sqlite_src",
         locals = locals,
-        url = "https://storage.googleapis.com/perfetto/sqlite-src-3250300.zip",
-        sha256 = "c7922bc840a799481050ee9a76e679462da131adba1814687f05aa5c93766421",
-        strip_prefix = "sqlite-src-3250300",
+        url = "https://storage.googleapis.com/perfetto/sqlite-src-3320300.zip",
+        sha256 = "9312f0865d3692384d466048f746d18f88e7ffd1758b77d4f07904e03ed5f5b9",
+        strip_prefix = "sqlite-src-3320300",
         build_file = "@perfetto//bazel:sqlite.BUILD",
     )
 
@@ -241,8 +252,8 @@ def gapid_dependencies(android = True, mingw = True, locals = {}):
         locals = locals,
         organization = "KhronosGroup",
         project = "SPIRV-Headers",
-        commit = "449bc986ba6f4c5e10e32828783f9daef2a77644",
-        sha256 = "5624978c0788b06fc66a23ab3066bf99d5d9f421a1698b509417163bb169ac33",
+        commit = "b2a156e1c0434bc8c99aaebba1c7be98be7ac580",  # 1.3.216.0
+        sha256 = "fbb4e256c2e9385169067d3b6f2ed3800f042afac9fb44a348b619aa277bb1fd",
     )
 
     maybe_repository(
@@ -251,9 +262,9 @@ def gapid_dependencies(android = True, mingw = True, locals = {}):
         locals = locals,
         organization = "KhronosGroup",
         project = "SPIRV-Cross",
-        commit = "9acb9ec31f5a8ef80ea6b994bb77be787b08d3d1",  # 2021-01-15
+        commit = "0e2880ab990e79ce6cc8c79c219feda42d98b1e8",  # 2021-08-30
         build_file = "@gapid//tools/build/third_party:spirv-cross.BUILD",
-        sha256 = "222af32a8a809612dffb67abf3530863dcdb224dba8babf742f7c754413cfc60",
+        sha256 = "7ae1069c29f507730ffa5143ac23a5be87444d18262b3b327dfb00ca53ae07cd",
     )
 
     maybe_repository(
@@ -262,8 +273,8 @@ def gapid_dependencies(android = True, mingw = True, locals = {}):
         locals = locals,
         organization = "KhronosGroup",
         project = "SPIRV-Tools",
-        commit = "3d4246b4aaa65a4b901abd04e7d5bc1822c582bb",
-        sha256 = "3eaefd42e6d34be6cade456ac41cba6e1f955d0f67875f2cd6ef488b9cd9440f",
+        commit = "b930e734ea198b7aabbbf04ee1562cf6f57962f0",  # 1.3.216.0
+        sha256 = "2d956e7d49a8795335d13c3099c44aae4fe501eb3ec0dbf7e1bfa28df8029b43",
     )
 
     maybe_repository(
@@ -272,8 +283,8 @@ def gapid_dependencies(android = True, mingw = True, locals = {}):
         locals = locals,
         organization = "KhronosGroup",
         project = "SPIRV-Reflect",
-        commit = "272e050728de8d4a4ce9e7101c1244e6ff56e5b0",
-        sha256 = "3812779f02cc1860adfebd6f2be11b0253781a552a1fc7ebc4eefec8914c6918",
+        commit = "0f142bbfe9bd7aeeae6b3c703bcaf837dba8df9d",  # 1.3.216.0
+        sha256 = "8eae9dcd2f6954b452a9a53b02ce7507dd3dcd02bacb678c4316f336dab79d86",
     )
 
     maybe_repository(
@@ -309,9 +320,9 @@ def gapid_dependencies(android = True, mingw = True, locals = {}):
         locals = locals,
         organization = "KhronosGroup",
         project = "Vulkan-Headers",
-        commit = "8ba8294c86d0e99fcb457bedbd573dd678ccc9b3",  # 1.3.212
+        commit = "3ef4c97fd6ea001d75a8e9da408ee473c180e456",  # 1.3.216
         build_file = "@gapid//tools/build/third_party:vulkan-headers.BUILD",
-        sha256 = "eaca5dde10b3b6d3cecf07c7f9b84f17f72ab8bce3bd79818a8909978c6fd601",
+        sha256 = "64a7fc6994501b36811af47b21385251a56a136a3ed3cf92673465c9d62985a1",
     )
 
     if android:
